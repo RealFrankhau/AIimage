@@ -29,27 +29,24 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Create signed URL with longer expiry (1 hour)
+    // Use Supabase transform feature directly in createSignedUrl
+    const transformOptions: Record<string, string> = {};
+    if (w) transformOptions.width = w;
+    if (h) transformOptions.height = h;
+    if (w || h) transformOptions.resize = 'cover';
+
     const { data, error } = await supabase.storage
       .from('works')
-      .createSignedUrl(path, 3600);
+      .createSignedUrl(path, 3600, {
+        transform: Object.keys(transformOptions).length > 0 ? transformOptions : undefined,
+      });
 
     if (error || !data?.signedUrl) {
       return new NextResponse('Image not found', { status: 404 });
     }
 
-    // Add transform parameters to the signed URL if provided
-    let finalUrl = data.signedUrl;
-    if (w || h) {
-      const url = new URL(finalUrl);
-      if (w) url.searchParams.set('width', w);
-      if (h) url.searchParams.set('height', h);
-      url.searchParams.set('resize', 'cover');
-      finalUrl = url.toString();
-    }
-
     // Redirect to the signed URL
-    return NextResponse.redirect(finalUrl);
+    return NextResponse.redirect(data.signedUrl);
   } catch {
     return new NextResponse('Internal Server Error', { status: 500 });
   }

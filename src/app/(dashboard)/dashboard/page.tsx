@@ -1,12 +1,11 @@
 import { getWorks, getCategories, getUniqueValues } from '@/lib/queries';
 import { DashboardLayout } from '@/components/layout/DashboardLayout';
 import { WorkGrid } from '@/components/work/WorkGrid';
-import { Header } from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { Search, Plus, Filter, ChevronDown } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { getSession } from '@/app/actions/auth';
+import Link from 'next/link';
 
 interface DashboardPageProps {
   searchParams: Promise<{
@@ -68,27 +67,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
           </Link>
         </div>
 
-        {/* Search and Filters */}
-        <div className="flex flex-col sm:flex-row gap-4">
-          <form action="/dashboard" method="GET" className="flex-1">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-              <Input
-                name="q"
-                value={query}
-                placeholder="Search works, prompts, tags..."
-                className="pl-10"
-              />
-            </div>
-          </form>
-          
-          <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm" className="gap-2 hidden sm:flex">
-              <Filter className="h-4 w-4" />
-              Filters
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </div>
+        {/* Filters */}
+        <div className="flex items-center gap-2">
+          <Button variant="outline" size="sm" className="gap-2 hidden sm:flex">
+            <Filter className="h-4 w-4" />
+            Filters
+            <ChevronDown className="h-4 w-4" />
+          </Button>
         </div>
 
         {/* Works Grid */}
@@ -134,6 +119,3 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
     </DashboardLayout>
   );
 }
-
-// Need to import Link
-import Link from 'next/link';

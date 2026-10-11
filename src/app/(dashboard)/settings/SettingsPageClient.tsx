@@ -4,7 +4,7 @@ import { useState, FormEvent } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
-import { Loader2, Plus, Trash2, Edit2 } from 'lucide-react';
+import { Loader2, Plus, Trash2, Edit2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -21,6 +21,7 @@ import {
 import { toast } from 'sonner';
 import { createCategoryAction, updateCategoryAction, deleteCategoryAction } from '@/app/actions/categories';
 import type { Category } from '@/types';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 const categorySchema = z.object({
   name: z.string().min(1, 'Name is required').max(50),
@@ -39,6 +40,11 @@ export function SettingsPageClient({ categories, userName, userEmail }: Settings
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [preferences, setPreferences] = useState({
+    defaultView: 'grid' as 'grid' | 'list',
+    itemsPerPage: '24',
+  });
+  const [isSavingPrefs, setIsSavingPrefs] = useState(false);
 
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
@@ -62,7 +68,6 @@ export function SettingsPageClient({ categories, userName, userEmail }: Settings
     } else {
       toast.success('Category created');
       form.reset();
-      // Refresh would happen via revalidatePath
       window.location.reload();
     }
     setIsSubmitting(false);
@@ -119,6 +124,22 @@ export function SettingsPageClient({ categories, userName, userEmail }: Settings
     setEditingCategory(null);
     setIsDialogOpen(false);
     form.reset();
+  };
+
+  const handleSavePreferences = async () => {
+    setIsSavingPrefs(true);
+    try {
+      // Save to localStorage for immediate effect
+      localStorage.setItem('preferences', JSON.stringify({
+        ...preferences,
+        itemsPerPage: parseInt(preferences.itemsPerPage),
+      }));
+      toast.success('Preferences saved');
+    } catch {
+      toast.error('Failed to save preferences');
+    } finally {
+      setIsSavingPrefs(false);
+    }
   };
 
   return (
@@ -270,19 +291,39 @@ export function SettingsPageClient({ categories, userName, userEmail }: Settings
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label>Default View</Label>
-            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-              <option>Grid</option>
-              <option>List</option>
-            </select>
+            <Select
+              value={preferences.defaultView}
+              onValueChange={(value) => setPreferences(prev => ({ ...prev, defaultView: value as 'grid' | 'list' }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select default view" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="grid">Grid</SelectItem>
+                <SelectItem value="list">List</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
           <div className="space-y-2">
             <Label>Items per page</Label>
-            <select className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm">
-              <option>24</option>
-              <option>48</option>
-              <option>96</option>
-            </select>
+            <Select
+              value={preferences.itemsPerPage}
+              onValueChange={(value) => setPreferences(prev => ({ ...prev, itemsPerPage: value }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select items per page" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="24">24</SelectItem>
+                <SelectItem value="48">48</SelectItem>
+                <SelectItem value="96">96</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+          <Button onClick={handleSavePreferences} disabled={isSavingPrefs} className="gap-2">
+            <Save className="h-4 w-4" />
+            {isSavingPrefs ? 'Saving...' : 'Save Preferences'}
+          </Button>
         </CardContent>
       </Card>
 
