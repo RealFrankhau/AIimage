@@ -29,11 +29,13 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Use Supabase transform feature directly in createSignedUrl
-    const transformOptions: Record<string, string> = {};
-    if (w) transformOptions.width = w;
-    if (h) transformOptions.height = h;
+    // Use Supabase Image Transform with signed URL
+    const transformOptions: Record<string, unknown> = {};
+    if (w) transformOptions.width = parseInt(w, 10);
+    if (h) transformOptions.height = parseInt(h, 10);
     if (w || h) transformOptions.resize = 'cover';
+    if (w || h) transformOptions.format = 'webp';
+    if (w || h) transformOptions.quality = 80;
 
     const { data, error } = await supabase.storage
       .from('works')

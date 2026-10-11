@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { 
   Copy, 
   Edit, 
@@ -169,14 +169,11 @@ export function WorkDetailClient({ work, imageUrl }: WorkDetailClientProps) {
             <CardContent className="p-0">
               <div className="relative aspect-[4/3] bg-muted overflow-hidden">
                 {!imageLoadError ? (
-                  <Image
+                  <img
                     src={imageUrl}
                     alt={work.title}
-                    fill
-                    className="object-contain"
-                    priority
+                    className="w-full h-full object-contain"
                     onError={() => setImageLoadError(true)}
-                    sizes="(max-width: 1024px) 100vw, 50vw"
                   />
                 ) : (
                   <div className="flex flex-col items-center justify-center h-full p-8 text-center text-muted-foreground">
@@ -370,13 +367,10 @@ export function WorkDetailClient({ work, imageUrl }: WorkDetailClientProps) {
             <DialogTitle>{work.title}</DialogTitle>
           </DialogHeader>
           <div className="relative aspect-[4/3] bg-black">
-            <Image
+            <img
               src={imageUrl}
               alt={work.title}
-              fill
-              className="object-contain"
-              priority
-              sizes="80vw"
+              className="w-full h-full object-contain"
             />
           </div>
         </DialogContent>

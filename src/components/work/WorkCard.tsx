@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import Image from 'next/image';
+// import Image from 'next/image';
 import { Heart, MoreVertical, Edit, Trash2, Copy, Download, Star } from 'lucide-react';
 import { formatDate } from '@/utils/helpers';
 import { Button } from '@/components/ui/button';
@@ -72,19 +72,18 @@ export function WorkCard({ work, viewMode = 'grid', onDelete }: WorkCardProps) {
     }
   };
 
-  const imageUrl = `/api/image?path=${work.image_path}&w=400&h=300`;
+  const imageUrl = `/api/image?path=${encodeURIComponent(work.image_path)}&w=400&h=300`;
 
   if (viewMode === 'list') {
     return (
       <div className="flex gap-4 p-4 border rounded-lg bg-card hover:bg-accent/50 transition-colors">
         <Link href={`/work/${work.id}`} className="flex-shrink-0 w-24 h-24 relative">
           <div className="aspect-square w-full overflow-hidden rounded-lg bg-muted relative">
-            <Image
+            <img
               src={imageUrl}
               alt={work.title}
-              fill
-              className="object-cover"
-              sizes="96px"
+              className="w-full h-full object-cover"
+              loading="lazy"
             />
           </div>
         </Link>
@@ -160,12 +159,11 @@ export function WorkCard({ work, viewMode = 'grid', onDelete }: WorkCardProps) {
     <SimpleCard className="overflow-hidden transition-shadow hover:shadow-md flex flex-col h-full">
       <Link href={`/work/${work.id}`} className="block relative aspect-[4/3] overflow-hidden">
         <div className="absolute inset-0 bg-muted">
-          <Image
+          <img
             src={imageUrl}
             alt={work.title}
-            fill
-            className="object-cover transition-transform duration-300 hover:scale-105"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            loading="lazy"
           />
         </div>
         {/* Favorite button overlay */}
