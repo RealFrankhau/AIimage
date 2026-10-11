@@ -28,6 +28,7 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
   const query = params.q || '';
   const filter = params.filter;
   const view = params.view;
+  const viewMode = (params.view === 'list' ? 'list' : 'grid') as 'grid' | 'list';
   const sort = params.sort;
   const page = parseInt(params.page || '1');
 
@@ -87,28 +88,13 @@ export default async function DashboardPage({ searchParams }: DashboardPageProps
               Filters
               <ChevronDown className="h-4 w-4" />
             </Button>
-            <Button variant="outline" size="icon" aria-label="Grid view">
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <rect x="3" y="3" width="7" height="7" rx="1" />
-                <rect x="14" y="3" width="7" height="7" rx="1" />
-                <rect x="3" y="14" width="7" height="7" rx="1" />
-                <rect x="14" y="14" width="7" height="7" rx="1" />
-              </svg>
-            </Button>
-            <Button variant="outline" size="icon" aria-label="List view">
-              <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <line x1="3" y1="12" x2="21" y2="12" />
-                <line x1="3" y1="6" x2="21" y2="6" />
-                <line x1="3" y1="18" x2="21" y2="18" />
-              </svg>
-            </Button>
           </div>
         </div>
 
         {/* Works Grid */}
         <WorkGrid
           works={worksResult.data}
-          viewMode="grid"
+          viewMode={viewMode}
           emptyMessage={query ? 'No works match your search.' : 'Your library is empty. Add your first AI generation!'}
           emptyAction={
             <Link href="/work/new">

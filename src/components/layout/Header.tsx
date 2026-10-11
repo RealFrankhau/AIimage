@@ -2,7 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useSearchParams } from 'next/navigation';
 import { Menu, X, Search, Plus, LogOut, User, Settings, Heart, FolderOpen, Clock, Grid, List, ChevronDown } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -28,13 +28,36 @@ const navigation = [
 
 export function Header() {
   const pathname = usePathname();
+  const searchParams = useSearchParams();
   const [mobileMenuOpen, setMobileMenuOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState('');
+  const [viewMode, setViewMode] = React.useState<'grid' | 'list'>(() => {
+    if (typeof window !== 'undefined') {
+      return (searchParams?.get('view') as 'grid' | 'list') || 'grid';
+    }
+    return 'grid';
+  });
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const params = new URLSearchParams();
-    if (searchQuery) params.set('q', searchQuery);
+    const params = new URLSearchParams(searchParams?.toString());
+    if (searchQuery) {
+      params.set('q', searchQuery);
+    } else {
+      params.delete('q');
+    }
+    params.delete('page');
+    window.location.href = `/dashboard?${params.toString()}`;
+  };
+
+  const handleViewChange = (mode: 'grid' | 'list') => {
+    setViewMode(mode);
+    const params = new URLSearchParams(searchParams?.toString());
+    if (mode === 'list') {
+      params.set('view', 'list');
+    } else {
+      params.delete('view');
+    }
     window.location.href = `/dashboard?${params.toString()}`;
   };
 
@@ -80,6 +103,33 @@ export function Header() {
 
         {/* Right Side Actions */}
         <div className="flex items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            className="gap-2 hidden sm:flex"
+            onClick={() => handleViewChange('grid')}
+            aria-label="Grid view"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+            </svg>
+          </Button>
+          <Button
+            variant={viewMode === 'list' ? 'default' : 'outline'}
+            size="sm"
+            className="gap-2 hidden sm:flex"
+            onClick={() => handleViewChange('list')}
+            aria-label="List view"
+          >
+            <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <line x1="3" y1="12" x2="21" y2="12" />
+              <line x1="3" y1="6" x2="21" y2="6" />
+              <line x1="3" y1="18" x2="21" y2="18" />
+            </svg>
+          </Button>
           <Button
             variant="ghost"
             size="icon"

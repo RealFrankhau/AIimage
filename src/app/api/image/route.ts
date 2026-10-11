@@ -29,22 +29,27 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    let transformOptions: Record<string, string> = {};
-    if (w) transformOptions.width = w;
-    if (h) transformOptions.height = h;
-
+    // Create signed URL with longer expiry (1 hour)
     const { data, error } = await supabase.storage
       .from('works')
-      .createSignedUrl(path, 60, {
-        transform: Object.keys(transformOptions).length > 0 ? transformOptions : undefined,
-      });
+      .createSignedUrl(path, 3600);
 
     if (error || !data?.signedUrl) {
       return new NextResponse('Image not found', { status: 404 });
     }
 
+    // Add transform parameters to the signed URL if provided
+    let finalUrl = data.signedUrl;
+    if (w || h) {
+      const url = new URL(finalUrl);
+      if (w) url.searchParams.set('width', w);
+      if (h) url.searchParams.set('height', h);
+      url.searchParams.set('resize', 'cover');
+      finalUrl = url.toString();
+    }
+
     // Redirect to the signed URL
-    return NextResponse.redirect(data.signedUrl);
+    return NextResponse.redirect(finalUrl);
   } catch {
     return new NextResponse('Internal Server Error', { status: 500 });
   }
