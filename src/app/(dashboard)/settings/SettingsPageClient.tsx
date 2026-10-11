@@ -37,6 +37,7 @@ interface SettingsPageClientProps {
 export function SettingsPageClient({ categories, userName, userEmail }: SettingsPageClientProps) {
   const [localCategories, setLocalCategories] = useState(categories);
   const [editingCategory, setEditingCategory] = useState<Category | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const form = useForm<CategoryFormData>({
@@ -111,10 +112,12 @@ export function SettingsPageClient({ categories, userName, userEmail }: Settings
   const startEditCategory = (category: Category) => {
     setEditingCategory(category);
     form.reset({ name: category.name });
+    setIsDialogOpen(true);
   };
 
   const cancelEdit = () => {
     setEditingCategory(null);
+    setIsDialogOpen(false);
     form.reset();
   };
 
@@ -163,7 +166,7 @@ export function SettingsPageClient({ categories, userName, userEmail }: Settings
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
           <CardTitle>Categories</CardTitle>
-          <Dialog open={!!editingCategory || false} onOpenChange={(open) => !open && cancelEdit()}>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button size="sm" variant="outline">
                 <Plus className="mr-2 h-4 w-4" />
