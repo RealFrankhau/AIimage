@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, FormEvent, useEffect } from 'react';
 import { useForm, Controller } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
@@ -45,6 +45,19 @@ export function SettingsPageClient({ categories, userName, userEmail }: Settings
     itemsPerPage: '24',
   });
   const [isSavingPrefs, setIsSavingPrefs] = useState(false);
+
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('preferences');
+      if (saved) {
+        try {
+          setPreferences(JSON.parse(saved));
+        } catch {
+          // ignore invalid JSON
+        }
+      }
+    }
+  }, []);
 
   const form = useForm<CategoryFormData>({
     resolver: zodResolver(categorySchema),
@@ -130,10 +143,7 @@ export function SettingsPageClient({ categories, userName, userEmail }: Settings
     setIsSavingPrefs(true);
     try {
       // Save to localStorage for immediate effect
-      localStorage.setItem('preferences', JSON.stringify({
-        ...preferences,
-        itemsPerPage: parseInt(preferences.itemsPerPage),
-      }));
+      localStorage.setItem('preferences', JSON.stringify(preferences));
       toast.success('Preferences saved');
     } catch {
       toast.error('Failed to save preferences');

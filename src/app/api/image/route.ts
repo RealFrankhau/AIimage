@@ -45,8 +45,23 @@ export async function GET(request: NextRequest) {
       return new NextResponse('Image not found', { status: 404 });
     }
 
-    // Redirect to the signed URL
-    return NextResponse.redirect(data.signedUrl);
+    // Fetch the image from the signed URL and stream it back
+    const imageResponse = await fetch(data.signedUrl);
+    
+    if (!imageResponse.ok) {
+      return new NextResponse('Failed to fetch image', { status: 500 });
+    }
+
+    const contentType = imageResponse.headers.get('content-type') || 'image/jpeg';
+    const cacheControl = imageResponse.headers.get('cache-control') || 'public, max-age=3600';
+
+    return new NextResponse(imageResponse.body, {
+      status: 200,
+      headers: {
+        'Content-Type': contentType,
+        'Cache-Control': cacheControl,
+      },
+    });
   } catch {
     return new NextResponse('Internal Server Error', { status: 500 });
   }
